@@ -1,5 +1,6 @@
 import { HomeContainer, Product } from "@/styles/pages/home"
 import Image from "next/image"
+import Head from 'next/head';
 import { useKeenSlider } from 'keen-slider/react'
 
 import 'keen-slider/keen-slider.min.css';
@@ -28,24 +29,29 @@ export default function Home({ products }: HomeProps) {
   });
 
   return ( 
-    <HomeContainer ref={sliderRef} className='keen-slider'>
-      {products.map(product => (
-        <Link href={`/product/${product.id}`} key={product.id}>
-          <Product className='keen-slider__slide'>
-            <Image 
-              src={product.imageUrl} 
-              alt='' 
-              width={520} 
-              height={480} 
-            />
-            <footer>
-              <strong>{product.name}</strong>
-              <span>{product.formattedPrice}</span>
-            </footer>
-          </Product>
-        </Link>
-      ))}
-    </HomeContainer>
+    <>
+      <Head>
+        <title>Home | Ignite Shop</title>
+      </Head>
+      <HomeContainer ref={sliderRef} className='keen-slider'>
+        {products.map(product => (
+          <Link href={`/product/${product.id}`} key={product.id}>
+            <Product className='keen-slider__slide'>
+              <Image 
+                src={product.imageUrl} 
+                alt='' 
+                width={520} 
+                height={480} 
+              />
+              <footer>
+                <strong>{product.name}</strong>
+                <span>{product.formattedPrice}</span>
+              </footer>
+            </Product>
+          </Link>
+        ))}
+      </HomeContainer>
+    </>
   )
 }
 
@@ -72,8 +78,6 @@ export const getStaticProps: GetStaticProps = async () => {
       }).format(priceUnitAmount)
     }
   })
-
-  console.log(products);
 
   return {
     props: {
