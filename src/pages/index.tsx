@@ -2,30 +2,38 @@ import { HomeContainer, Product } from "@/styles/pages/home"
 import Image from "next/image"
 import Head from 'next/head';
 import { useKeenSlider } from 'keen-slider/react'
+import { Handbag } from 'phosphor-react';
 
 import 'keen-slider/keen-slider.min.css';
 import { stripe } from "@/lib/stripe";
 import { GetStaticProps } from "next";
 import Stripe from "stripe";
 import Link from "next/link";
+import { useCartContext } from "@/contexts/useCart";
+
+interface Product {
+  id: string;
+  name: string;
+  imageUrl: string;
+  price: string;
+  formattedPrice: string;
+  defaultPriceId: string;
+  quantity: number;
+}
 
 interface HomeProps {
-  products: {
-    id: string;
-    name: string;
-    imageUrl: string;
-    price: string;
-    formattedPrice: string;
-  }[]
+  products: Product[]
 }
 
 export default function Home({ products }: HomeProps) {
 
+  const { addToCart } = useCartContext();
+
   const [sliderRef] = useKeenSlider({
     slides: {
       perView: 3,
-      spacing: 48
-    }
+      spacing: 48,
+    },
   });
 
   return ( 
@@ -35,20 +43,26 @@ export default function Home({ products }: HomeProps) {
       </Head>
       <HomeContainer ref={sliderRef} className='keen-slider'>
         {products.map(product => (
-          <Link href={`/product/${product.id}`} key={product.id}>
-            <Product className='keen-slider__slide'>
+          <Product className='keen-slider__slide' key={product.id}>
+            <Link href={`/product/${product.id}`}  >
               <Image 
                 src={product.imageUrl} 
                 alt='' 
                 width={520} 
                 height={480} 
               />
-              <footer>
+            <footer>
+              <div>
                 <strong>{product.name}</strong>
                 <span>{product.formattedPrice}</span>
-              </footer>
-            </Product>
-          </Link>
+              </div>
+              <button onClick={() => addToCart(product)} title='add to cart'>
+                <Handbag weight="bold" size="32px" color="white" />
+              </button>
+            </footer>
+            </Link>
+
+          </Product>
         ))}
       </HomeContainer>
     </>
@@ -75,7 +89,9 @@ export const getStaticProps: GetStaticProps = async () => {
       formattedPrice: priceUnitAmount && new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD'
-      }).format(priceUnitAmount)
+      }).format(priceUnitAmount),
+      defaultPriceId: price.id,
+      quantity: 1
     }
   })
 

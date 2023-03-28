@@ -1,3 +1,4 @@
+import { useCartContext } from "@/contexts/useCart";
 import { stripe } from "@/lib/stripe";
 import { ImageContainer, ProductContainer, ProductDetails } from "@/styles/pages/product";
 import axios from "axios";
@@ -16,27 +17,15 @@ interface ProductProps {
     formattedPrice: string;
     description: string;
     defaultPriceId: string;
+    quantity: number;
   }
 }
 
 export default function Product({ product }: ProductProps) {
   const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false);
+  const { addToCart } = useCartContext();
+ 
 
-  async function handleBuyProduct() {
-    try {
-      setIsCreatingCheckoutSession(true)
-      const response = await axios.post('/api/checkout', {
-        priceId: product.defaultPriceId
-      })
-
-      const { checkoutUrl } = response.data;
-
-      window.location.href = checkoutUrl;
-    } catch (error) {
-      setIsCreatingCheckoutSession(false)
-      alert('Fail to redirect to checkout!')
-    }
-  }
 
   return (
     <>
@@ -54,7 +43,7 @@ export default function Product({ product }: ProductProps) {
 
           <p>{product?.description}</p>
 
-          <button disabled={isCreatingCheckoutSession} onClick={handleBuyProduct}>Buy now</button>
+          <button onClick={() => addToCart(product)}>Put in cart</button>
         </ProductDetails>
       </ProductContainer>
     </>
@@ -98,7 +87,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           currency: 'USD'
         }).format(priceUnitAmount),
         description: product.description,
-        defaultPriceId: price.id
+        defaultPriceId: price.id,
+        quantity: 1
       }
     },
     revalidate: 60 * 60 * 1, // 1 hour

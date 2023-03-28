@@ -7,7 +7,7 @@ export const ProductContainer = styled('main', {
   gap: '4rem',
 
   maxWidth: 1180,
-  margin: '0 auto'
+  margin: '0 auto 32px'
 });
 
 export const ImageContainer = styled('div', {
